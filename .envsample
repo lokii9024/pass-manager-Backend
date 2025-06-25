@@ -1,0 +1,4 @@
+PORT = 8000
+MONGO_URI = "your mongo uri"
+CORS_ORIGIN = "frontend url"
+JWT_SECRET = "your secret"
