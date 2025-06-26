@@ -2,9 +2,8 @@ import jwt from 'jsonwebtoken';
 import {User} from '../models/User.js';
 import dotenv from 'dotenv';
 
-export const getCurrentUser = async (req,_,next) => {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(' ')[1];
+export const verifyJWT = async (req,_,next) => {
+    const token = req.header("Authorization")?.replace("Bearer ", "")
     if(!token){
         return res.status(401).json({message: "Unauthorized, No token provided"});
     }
