@@ -3,7 +3,7 @@ import {User} from '../models/User.js';
 import dotenv from 'dotenv';
 
 export const verifyJWT = async (req,_,next) => {
-    const token = req.header("Authorization")?.replace("Bearer ", "")
+    const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
     if(!token){
         return res.status(401).json({message: "Unauthorized, No token provided"});
     }

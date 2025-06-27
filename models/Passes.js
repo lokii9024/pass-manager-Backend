@@ -9,8 +9,12 @@ const passSchema = new mongoose.Schema({
         type: String, 
         required: true
     },
-    pass : {
+    pass : { // encrypted pass from frontend
         type: String, 
+        required: true
+    },
+    IV : { // initialization vector(used to ecrypt uniquely)
+        type: String,
         required: true
     },
     userId : {

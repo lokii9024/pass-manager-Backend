@@ -17,7 +17,16 @@ export const signUp = async (req,res) => {
         await newUser.save()
 
         const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET, {expiresIn: '1h'});
-        res.status(201).json({token,message:"user created successfully"})
+
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+
+        res
+        .status(201)
+        .cookie('token', token,options)
+        .json({message:"user created successfully"})
     } catch (error) {
         res.status(500).json({message: "Something went wrong, While creating user"})
     }
@@ -37,8 +46,15 @@ export const signUp = async (req,res) => {
             // Generate JWT token
             const token =  jwt.sign({id: user._id},process.env.JWT_SECRET, {expiresIn: '1h'});
 
+            const options = {
+                httpOnly: true,
+                secure: true
+            }
 
-            res.status(200).json({token,message: "User logged in successfully"})
+            res
+            .status(200)
+            .cookie('token', token, options)
+            .json({token,message: "User logged in successfully"})
         } catch (error) {
             res.status(500).json({message: "Something went wrong, while logging in"})
         }

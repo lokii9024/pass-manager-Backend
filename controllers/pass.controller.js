@@ -1,4 +1,3 @@
-import { User } from "../models/User.js";
 import { Pass } from "../models/Passes.js";
 
 // add pass entry
@@ -7,7 +6,7 @@ export const addPass = async (req,res) => {
         if(!req.body) {
             return res.status(400).json({message: "req.body is undefined"});
         }
-        const {url,username,pass} = req.body
+        const {url,username,pass,IV} = req.body
         const userId = req.user._id
         //if userId is not present in the request, return an error
         if (!userId) {
@@ -18,7 +17,7 @@ export const addPass = async (req,res) => {
         if(existingPass) {
             return res.status(400).json({message: "Pass entry for this URL already exists"});
         }
-        const newPass = new Pass({url,username,pass,userId});
+        const newPass = new Pass({url,username,pass,IV,userId});
         await newPass.save()
         res.status(201).json({url,username,message: "Pass entry added successfully", pass: newPass});
     } catch (error) {
@@ -29,7 +28,7 @@ export const addPass = async (req,res) => {
 //update pass entry
 export const updatePass = async (req, res) => {
     try {
-        const {url,username,pass} = req.body
+        const {url,username,pass,IV} = req.body
         const userId = req.user._id
         //if userId is not present in the request, return an error
         if (!userId) {  
@@ -47,9 +46,9 @@ export const updatePass = async (req, res) => {
         // update the pass entry with new values
         const updatedPass = await Pass.findOneAndUpdate(
             {url,userId},
-            {$set:{username,pass}},
+            {$set:{username,pass,IV}},
             {new: true} // return the updated document
-        ).select('-pass -userId'); // exclude sensitive fields like pass and userId from the response
+        ).select('-pass -userId -IV'); // exclude sensitive fields like pass and userId from the response
 
         if(!updatedPass) {
             return res.status(404).json({message: "Pass entry not found"});
@@ -81,5 +80,28 @@ export const deletePass = async (req,res) => {
         res.status(200).json({deletedPass,message: "Pass entry deleted successfully"});
     } catch (error) {
         res.status(500).json({message: "error while deleting pass entry"})
+    }
+}
+
+// get all pass entries for a user
+export const getAllPasses = async (req, res) => {
+    try {
+        const userId = req.user._id
+        if(!userId) {
+            return res.status(400).json({message: "User ID is required"});
+        }
+        // find all pass entries for the user
+        const passes = await Pass.find({userId}).sort({createdAt: -1})
+
+        if(passes.length === 0) {
+            return res.status(404).json({message: "No pass entries found for this user"});
+        }
+
+        res
+        .status(200)
+        
+
+    } catch (error) {
+        res.status(500).json({message: "Something went wrong while fetching pass entries", error: error.message});
     }
 }
