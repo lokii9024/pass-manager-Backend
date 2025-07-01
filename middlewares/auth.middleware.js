@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import {User} from '../models/User.js';
-import dotenv from 'dotenv';
 
 export const verifyJWT = async (req,_,next) => {
     const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")

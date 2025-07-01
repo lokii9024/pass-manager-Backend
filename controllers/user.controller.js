@@ -63,8 +63,14 @@ export const signUp = async (req,res) => {
 
 export const logOut = async (req, res) => {
     try {
-        // Invalidate the token on the client side
-        res.status(200).json({message: "User logged out successfully"});
+        res
+        .clearCookie('token',{
+            httpOnly: true,
+            secure: true,
+            sameSite: "lax"
+        })
+        .status(200)
+        .json({message: "User logged out successfully"});
     } catch (error) {
         res.status(500).json({message: "Something went wrong, while logging out"});
     }
