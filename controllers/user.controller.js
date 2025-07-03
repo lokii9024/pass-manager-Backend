@@ -19,7 +19,7 @@ export const signUp = async (req,res) => {
         console.log("new user created", newUser)
 
         const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET, {expiresIn: '1h'});
-        const user = await User.findOne(email).select('-password');
+        const user = await User.findOne({email}).select('-password');
         const options = {
             httpOnly: true,
             secure: true,
@@ -57,7 +57,7 @@ export const signUp = async (req,res) => {
                 maxAge: 60 * 60 * 1000,
             }
 
-            const ruser = await User.findOne(email).select("-password")
+            const ruser = await User.findOne({email}).select("-password")
 
             res
             .status(200)
@@ -91,7 +91,9 @@ export const getCurrentUser = async (req, res) => {
         const user = await User.findById(req.user._id).select('-password');
         if(!user) return res.status(404).json({message: "User not found"})
 
-        res.json({user})
+        res
+        .status(200)
+        .json({user})
     } catch (error) {
         res.status(500).json({message : "error while fetching user"})
     }
