@@ -72,7 +72,7 @@ export const deletePass = async (req,res) => {
             return res.status(400).json({message: "pass id is required"});
         }
         // find the pass entry by url and userId
-        const existingPass = await Pass.findOne({_id:id,userId});
+        const existingPass = await Pass.findOne({_id:passId,userId});
         if(!existingPass) return res.status(404).json({message: "Pass entry not found"});
 
         // delete the pass entry
