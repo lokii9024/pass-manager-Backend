@@ -6,7 +6,10 @@ export const addPass = async (req,res) => {
         if(!req.body) {
             return res.status(400).json({message: "req.body is undefined"});
         }
-        const {url,username,pass,IV} = req.body
+        const {url,username,pass,IV,salt,hmac} = req.body
+        if(!url || !username || !pass || !IV || !salt || !hmac) {
+            return res.status(400).json({message: "Missing required feilds"})
+        }
         const userId = req.user._id
         //if userId is not present in the request, return an error
         if (!userId) {
@@ -17,7 +20,7 @@ export const addPass = async (req,res) => {
         if(existingPass) {
             return res.status(400).json({message: "Pass entry for this URL already exists"});
         }
-        const newPass = new Pass({url,username,pass,IV,userId});
+        const newPass = new Pass({url,username,pass,IV,userId,salt,hmac});
         await newPass.save()
 
         res.status(201).json({newPass,message: "Pass entry added successfully"});
@@ -29,7 +32,13 @@ export const addPass = async (req,res) => {
 //update pass entry
 export const updatePass = async (req, res) => {
     try {
-        const {url,username,pass,IV} = req.body
+        if(!req.body) {
+            return res.status(400).json({message: "req.body is undefined"});
+        }
+        const {url,username,pass,IV,salt,hmac} = req.body
+        if(!url || !username || !pass || !IV || !salt || !hmac) {
+            return res.status(400).json({message: "Missing required feilds"})
+        }
         const userId = req.user._id
         const passId = req.params.id
         //if userId is not present in the request, return an error
@@ -48,7 +57,7 @@ export const updatePass = async (req, res) => {
         // update the pass entry with new values
         const updatedPass = await Pass.findOneAndUpdate(
             {_id: passId,userId},
-            {$set:{username,pass,IV}},
+            {$set:{username,pass,IV,salt,hmac}},
             {new: true} // return the updated document
         );
 
@@ -67,7 +76,9 @@ export const deletePass = async (req,res) => {
     try {
         const passId = req.params?.id
         const userId = req.user._id
-
+        if(!userId){
+            return res.status(400).json({message: "userId is required"})
+        }
         if(!passId){
             return res.status(400).json({message: "pass id is required"});
         }
@@ -76,7 +87,7 @@ export const deletePass = async (req,res) => {
         if(!existingPass) return res.status(404).json({message: "Pass entry not found"});
 
         // delete the pass entry
-        const deletedPass = await Pass.findOneAndDelete({_id:passId,userId}).select('-pass -IV');
+        const deletedPass = await Pass.findOneAndDelete({_id:passId,userId}).select('-pass -IV -salt -hmac');
         if(!deletedPass) return res.status(404).json({message: "Pass entry not found"});
 
         res.status(200).json({deletedPass,message: "Pass entry deleted successfully"});

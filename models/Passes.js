@@ -22,6 +22,14 @@ const passSchema = new mongoose.Schema({
         ref: 'User', 
         required: true
     },
+    salt : {
+        type: String,
+        required: true
+    },
+    hmac : {
+        type: String,
+        required: true
+    }
 },{timestamps: true});
 
 export const Pass = mongoose.model('Pass', passSchema);
